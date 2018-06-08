@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Drag and Drop test - JS</title>
+	<style>
+		#movingZone {
+			border: solid 1px #000000;
+			width: 100%;
+			height: 1000px;
+		}
+		.movableBloc {
+			background-color: coral;
+			width: 100px;
+			height: 100px;
+			position: absolute;
+		}
+	</style>
+</head>
+<body>
+	<form>
+		<p>
+			What do you want to do ?
+			<input type="radio" name="chooseAction" id="dragNDrop" value="dragNDrop" checked /><label for="dragNDrop">Moving</label>
+			<input type="radio" name="chooseAction" id="color" value="color" /><label for="color">Change color</label>
+		</p>
+	</form>
+	<div id="movingZone">
+		<div class="movableBloc"></div>
+	</div>
+
+	<script type="text/javascript">
+		// MOVABLE AND EDITABLE OBJECT (DRAG AND DROP)
+		// TODO: block moving outside div, try to change size, possibility to move multiple blocks
+		const mvBlocs = document.querySelectorAll('div.movableBloc');
+		let moving, initColor, mousePosOnClick, blockPosOnClick = [];
+		const availableColor = {
+			'Blue' : 'rgb(0, 0, 255)',
+			'Green' : 'rgb(0, 128, 0)',
+			'Black' : 'rgb(0, 0, 0)',
+			'Coral' : 'rgb(255, 127, 80)'
+		};
+
+		mvBlocs[0].addEventListener('mousedown', function(e){	// SET COORD WHEN CLICK ON BLOCK
+			if(document.getElementById('dragNDrop').checked) {
+				moving = true;
+				initColor = mvBlocs[0].style.backgroundColor;
+				mvBlocs[0].style.backgroundColor = 'red';
+				mousePosOnClick = [		// GET MOUSE POS ON CLICK TO SETUP THE CENTER
+					e.clientX,
+					e.clientY
+				];
+				blockPosOnClick[0] = [	// GET BLOC POS ON CLICK TO SETUP THE CENTER
+					mvBlocs[0].getBoundingClientRect().left,
+					mvBlocs[0].getBoundingClientRect().top
+				];
+			}
+		});
+		document.addEventListener('mousemove', function(e){	// MOVING BLOCK WITH MOUSE
+			if(document.getElementById('dragNDrop').checked){
+				/*		const maxMovingCoord = document.getElementById('movingZone').getBoundingClientRect();
+						const movingBlocPos = mvBlocs[0].getBoundingClientRect();*/
+
+				if(moving){
+					mvBlocs[0].style.left = e.clientX - (mousePosOnClick[0] - blockPosOnClick[0][0]) + "px";
+					mvBlocs[0].style.top = e.clientY - (mousePosOnClick[1] - blockPosOnClick[0][1]) + "px";
+				}
+			}
+		});
+		mvBlocs[0].addEventListener('mouseup', function(){	// STOP DRAGGING WHEN MOUSE DROPPED
+			if(document.getElementById('dragNDrop').checked && moving){
+				mvBlocs[0].style.backgroundColor = initColor;
+				moving = false;
+			}
+		});
+
+		mvBlocs[0].addEventListener('click', function(e) {	// PURPOSE COLORS
+			if(document.getElementById('color').checked && e.target.nodeName === 'DIV' && !document.getElementById('colorChoice')){
+				const selectColor = document.createElement('select');
+				selectColor.setAttribute('name','colorChoice');
+				selectColor.setAttribute('id','colorChoice');
+				selectColor.style.position = 'absolute';
+				selectColor.style.left = e.clientX - mvBlocs[0].getBoundingClientRect().left + "px";
+				selectColor.style.top = e.clientY - mvBlocs[0].getBoundingClientRect().top + "px";
+
+				for(let i in availableColor){
+					let newOption = document.createElement('option');
+					newOption.setAttribute('value', i);
+					if(availableColor[i] === getComputedStyle(mvBlocs[0]).backgroundColor){
+						newOption.selected = true;
+					}
+					newOption.textContent = i;
+					selectColor.appendChild(newOption);
+				}
+				mvBlocs[0].appendChild(selectColor);
+
+				document.getElementById('colorChoice').addEventListener('change',function () {
+					const colorChoice = document.getElementById('colorChoice').value;
+					if(availableColor[colorChoice] !== getComputedStyle(mvBlocs[0]).backgroundColor){
+						mvBlocs[0].style.backgroundColor = availableColor[colorChoice];
+					}
+
+					mvBlocs[0].removeChild(selectColor)
+				});
+			}
+		});
+	</script>
+</body>
+</html>
