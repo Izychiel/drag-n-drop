@@ -1,4 +1,5 @@
-- add multiple windows compatibility
+- possibility to add windows + colors
+- when window added, set aside the others
 - better graphics -> make a real "window" for blocks
 - add a cross to close window
 - maybe a temporarily close

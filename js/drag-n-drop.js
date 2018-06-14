@@ -11,9 +11,43 @@ const availableColor = {
 };
 
 	for (let i = 0; i < mvBlocs.length; i++) { // SELECTING ALL MOVABLE BLOCS, SETTING THEM THE EVENTS
+		mvBlocs[i].addEventListener('click', function (e) {	// PURPOSE COLORS
+			if (document.getElementById('color').checked && e.target.nodeName === 'DIV' && !document.getElementById('colorChoice')) {
+				const targetBlockId = parseInt(e.target.className.replace('movableBloc ',''));	// GET THE ID OF THE BLOCK
+
+				const selectColor = document.createElement('select');
+				selectColor.setAttribute('name', 'colorChoice');
+				selectColor.setAttribute('id', 'colorChoice');
+				selectColor.style.position = 'absolute';
+				selectColor.style.left = e.clientX - mvBlocs[targetBlockId].getBoundingClientRect().left + "px";
+				selectColor.style.top = e.clientY - mvBlocs[targetBlockId].getBoundingClientRect().top + "px";
+
+				for (let i in availableColor) {
+					let newOption = document.createElement('option');
+					newOption.setAttribute('value', i);
+					if (availableColor[i] === getComputedStyle(mvBlocs[targetBlockId]).backgroundColor) {
+						newOption.selected = true;
+					}
+					newOption.textContent = i;
+					selectColor.appendChild(newOption);
+				}
+				mvBlocs[targetBlockId].appendChild(selectColor);
+
+				document.getElementById('colorChoice').addEventListener('change', function () {
+					const colorChoice = document.getElementById('colorChoice').value;
+					if (availableColor[colorChoice] !== getComputedStyle(mvBlocs[targetBlockId]).backgroundColor) {
+						mvBlocs[targetBlockId].style.backgroundColor = availableColor[colorChoice];
+					}
+
+					mvBlocs[targetBlockId].removeChild(selectColor)
+				});
+			}
+		});
+
 		mvBlocs[i].addEventListener('mousedown', function (e) {	// SET COORD WHEN CLICK ON BLOCK
 			if (document.getElementById('dragNDrop').checked) {
-				const targetBlockId = e.target.classList[1];
+				const targetBlockId = parseInt(e.target.className.replace('movableBloc ',''));
+
 				moving = [true, targetBlockId];	// IS MOVING AND WHICH BLOCK
 				initColor = e.target.style.backgroundColor;
 				e.target.style.backgroundColor = 'red';
@@ -35,6 +69,7 @@ const availableColor = {
 			blockPosOnClick = [];
 		}
 	});
+
 	document.addEventListener('mousemove', function (e) {	// MOVING BLOCK WITH MOUSE
 		if (document.getElementById('dragNDrop').checked) {
 			/*		const maxMovingCoord = document.getElementById('movingZone').getBoundingClientRect();
@@ -43,37 +78,6 @@ const availableColor = {
 				mvBlocs[moving[1]].style.left = e.clientX - (mousePosOnClick[0] - blockPosOnClick[0]) + "px";
 				mvBlocs[moving[1]].style.top = e.clientY - (mousePosOnClick[1] - blockPosOnClick[1]) + "px";
 			}
-		}
-	});
-
-	mvBlocs[0].addEventListener('click', function (e) {	// PURPOSE COLORS
-		if (document.getElementById('color').checked && e.target.nodeName === 'DIV' && !document.getElementById('colorChoice')) {
-			const selectColor = document.createElement('select');
-			selectColor.setAttribute('name', 'colorChoice');
-			selectColor.setAttribute('id', 'colorChoice');
-			selectColor.style.position = 'absolute';
-			selectColor.style.left = e.clientX - mvBlocs[0].getBoundingClientRect().left + "px";
-			selectColor.style.top = e.clientY - mvBlocs[0].getBoundingClientRect().top + "px";
-
-			for (let i in availableColor) {
-				let newOption = document.createElement('option');
-				newOption.setAttribute('value', i);
-				if (availableColor[i] === getComputedStyle(mvBlocs[0]).backgroundColor) {
-					newOption.selected = true;
-				}
-				newOption.textContent = i;
-				selectColor.appendChild(newOption);
-			}
-			mvBlocs[0].appendChild(selectColor);
-
-			document.getElementById('colorChoice').addEventListener('change', function () {
-				const colorChoice = document.getElementById('colorChoice').value;
-				if (availableColor[colorChoice] !== getComputedStyle(mvBlocs[0]).backgroundColor) {
-					mvBlocs[0].style.backgroundColor = availableColor[colorChoice];
-				}
-
-				mvBlocs[0].removeChild(selectColor)
-			});
 		}
 	});
 }
